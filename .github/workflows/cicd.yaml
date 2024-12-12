@@ -48,10 +48,10 @@ jobs:
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
-      id: build-push  # Add an ID to reference outputs
+      id: build-push
       with:
         context: .
-        file: ./Dockerfile  # Corrected to Dockerfile
+        file: ./Dockerfile
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/flasktest-app:latest
 
