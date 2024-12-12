@@ -1,4 +1,4 @@
-name: DockerImage Flask App (CI/CD)
+name: CI/CD for Dockerized Flask App
 
 on:
   push:
@@ -7,6 +7,12 @@ on:
     branches: [ main ]
 
 jobs:
+  dockerbuild:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build The Docker Image
+      run: docker build . --file DockerFile --tag workflow-test:$(date +%s)
   build-and-test:
     runs-on: ubuntu-latest
 
@@ -37,7 +43,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up Docker Builder
+    - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
     - name: Login to DockerHub
@@ -48,15 +54,11 @@ jobs:
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
-      
       with:
         context: .
-        file: ./Dockerfile
+        file: ./DockerFile
         push: true
-        tags: | 
-         ${{ secrets.DOCKER_USERNAME }}/flasktest-app:latest
-         ${{ secrets.DOCKER_USERNAME }}/flasktest-app:${{github.sha }}
-
+        tags: ${{ secrets.DOCKER_USERNAME }}/flasktest-app:latest
 
     - name: Image digest
-      run: echo ${{ steps.build-push.outputs.digest }}
+      run: echo ${{ steps.build-and-publish.outputs.digest }}
